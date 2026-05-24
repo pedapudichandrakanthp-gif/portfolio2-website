@@ -1,18 +1,18 @@
 // =========================================================
-// 1. MOBILE HEADER SHRINK & SCROLL EFFECTS
+// 1. SMART HEADER (Shrink & Glassmorphism)
 // =========================================================
 const header = document.getElementById('header');
 const scrollTopBtn = document.getElementById('scrollTopBtn');
 
 window.addEventListener('scroll', () => {
-    // Header Shrink Effect (primarily affects mobile styling via CSS)
+    // Add background and shrink effect on scroll
     if (window.scrollY > 50) {
-        header.classList.add('shrink');
+        header.classList.add('scrolled', 'shrink');
     } else {
-        header.classList.remove('shrink');
+        header.classList.remove('scrolled', 'shrink');
     }
 
-    // Scroll To Top Button Visibility
+    // Scroll To Top Button Logic
     if (window.scrollY > 300) {
         scrollTopBtn.classList.add('visible');
     } else {
@@ -20,16 +20,13 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Scroll to Top Action
+// Scroll to Top click event
 scrollTopBtn.addEventListener('click', () => {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 // =========================================================
-// 2. MOBILE MENU TOGGLE
+// 2. MOBILE MENU (Smooth Dropdown)
 // =========================================================
 const hamburger = document.querySelector('.hamburger');
 const navLinksContainer = document.querySelector('.nav-links');
@@ -38,7 +35,6 @@ const navLinks = document.querySelectorAll('.nav-links a');
 hamburger.addEventListener('click', () => {
     navLinksContainer.classList.toggle('active');
     
-    // Toggle icon between bars and times (close)
     const icon = hamburger.querySelector('i');
     if(navLinksContainer.classList.contains('active')) {
         icon.classList.remove('fa-bars');
@@ -49,7 +45,7 @@ hamburger.addEventListener('click', () => {
     }
 });
 
-// Close mobile menu when a link is clicked
+// Close mobile menu on click (Responsive Fix)
 navLinks.forEach(link => {
     link.addEventListener('click', () => {
         navLinksContainer.classList.remove('active');
@@ -60,10 +56,8 @@ navLinks.forEach(link => {
 });
 
 // =========================================================
-// 3. SCROLL ANIMATIONS (Fade In Effect)
+// 3. SCROLL REVEAL & PROGRESS BAR ANIMATION
 // =========================================================
-const animateElements = document.querySelectorAll('.section-animate');
-
 const observerOptions = {
     root: null,
     rootMargin: '0px',
@@ -73,16 +67,27 @@ const observerOptions = {
 const observer = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
+            // Trigger section reveal
             entry.target.classList.add('in-view');
-            observer.unobserve(entry.target); // Animate only once
+            
+            // If the section contains progress bars, trigger their animation
+            const progressBars = entry.target.querySelectorAll('.progress');
+            if (progressBars.length > 0) {
+                progressBars.forEach(bar => {
+                    const targetWidth = bar.getAttribute('data-width');
+                    bar.style.width = targetWidth;
+                });
+            }
+            
+            observer.unobserve(entry.target); // Run once for performance
         }
     });
 }, observerOptions);
 
-animateElements.forEach(el => observer.observe(el));
+document.querySelectorAll('.section-animate').forEach(el => observer.observe(el));
 
 // =========================================================
-// 4. ACTIVE NAVBAR HIGHLIGHT
+// 4. ACTIVE NAVBAR HIGHLIGHTING
 // =========================================================
 const sections = document.querySelectorAll('section');
 
@@ -93,15 +98,15 @@ window.addEventListener('scroll', () => {
         const sectionTop = section.offsetTop;
         const sectionHeight = section.clientHeight;
         
-        // Check if scroll position is within the section (offset by header height)
-        if (pageYOffset >= (sectionTop - 100)) {
+        // Offset mathematical adjustment for fixed header
+        if (pageYOffset >= (sectionTop - 150)) {
             current = section.getAttribute('id');
         }
     });
 
     navLinks.forEach(link => {
         link.classList.remove('active');
-        if (link.getAttribute('href').includes(current)) {
+        if (link.getAttribute('href') === `#${current}`) {
             link.classList.add('active');
         }
     });
